@@ -1,0 +1,12 @@
+#!/usr/bin/ruby -w
+# vim:syntax=ruby
+
+ARGV.each do|a|
+  puts "Argument: #{a}"
+end
+
+File.exist?("all.txt") { File.delete("all.txt") }
+
+if Dir['*.txt'].count != 0 then
+    File.open("all.txt","w") { |f|Dir['*.txt'].each{ |nm|f.write(File.read(nm)) } }
+end

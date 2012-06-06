@@ -8,5 +8,5 @@ end
 File.exist?("all.txt") { File.delete("all.txt") }
 
 if Dir['*.txt','*.TXT'].count != 0 then
-    File.open("all.txt","w") { |f| f.puts Dir['*.txt','*.TXT'].each{ |nm| f.write(File.read(nm)) } }
+    File.open("all.txt","w") { |f| Dir['*.txt','*.TXT'].each{ |nm| f.write(File.read(nm)) } }
 end

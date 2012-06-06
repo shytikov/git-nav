@@ -6,7 +6,7 @@ ARGV.each do|a|
 end
 
 if File.exist?("all.txt") then  
-    f = File
+    object_file = File
     File.open("all.txt").each_line do |line|
         file_name = case 
             when line.match('^OBJECT Table.*')
@@ -30,12 +30,11 @@ if File.exist?("all.txt") then
         end
         
         unless file_name.nil? 
-            puts file_name 
+            # New NAV object was found in the combined file
             File.exist?(file_name) { File.delete(file_name) }
-            
-            f = File.open(file_name,"w")
+            object_file = File.open(file_name,"w")
         end
 
-        f.write(line)
+        object_file.write(line)
     end 
 end

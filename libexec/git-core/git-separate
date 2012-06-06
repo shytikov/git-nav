@@ -1,13 +1,17 @@
 #!/usr/bin/ruby -w
 # vim:syntax=ruby
 
-ARGV.each do|a|
-  puts "Argument: #{a}"
-end
-
 if File.exist?("all.txt") then  
     object_file = File
+
+    clean_objects = if ARGV.include?('--clean') then
+        true 
+    else
+        false
+    end
+
     File.open("all.txt").each_line do |line|
+
         file_name = case 
             when line.match('^OBJECT Table.*')
                 "TAB" + line.split[2] + ".TXT"
@@ -34,7 +38,9 @@ if File.exist?("all.txt") then
             File.exist?(file_name) { File.delete(file_name) }
             object_file = File.open(file_name,"w")
         end
-
-        object_file.write(line)
+        
+        if !clean_objects || !line.match('.*Modified=Yes;') then
+            object_file.write(line)
+        end
     end 
 end

@@ -37,10 +37,37 @@ if File.exist?("all.txt") then
             # New NAV object was found in the combined file
             File.exist?(file_name) { File.delete(file_name) }
             object_file = File.open(file_name,"w")
+            time_cleaned = FALSE
+            flag_cleaned = FALSE
+            skip_line = FALSE
         end
         
-        if !clean_objects || !line.match('.*Modified=Yes;') then
+        if clean_objects  then
+            if !time_cleaned then
+                if line.match('.*Time=.*;') then
+                    if line.include?('[') && line.include?(']') then
+                        line[-5..-4] = '00'
+                        line[-8..-7] = '00'
+                    else
+                        # Removing seconds
+                        line[-4..-3] = '00' 
+                        line[-7..-6] = '00'
+                    end
+                    time_cleaned = TRUE
+                end 
+            end
+
+            if !flag_cleaned then
+                if line.match('.*Modified=Yes;') then
+                    flag_cleaned = TRUE
+                    skip_line = TRUE
+                end
+            end
+        end
+
+        if !skip_line then
             object_file.write(line)
+            skip_line = FALSE
         end
     end 
 end

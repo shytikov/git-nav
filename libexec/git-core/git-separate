@@ -5,9 +5,9 @@ if File.exist?("all.txt") then
     object_file = File
 
     clean_objects = if ARGV.include?('--clean') then
-        true 
+        TRUE
     else
-        false
+        FALSE
     end
 
     File.open("all.txt").each_line do |line|
@@ -71,5 +71,5 @@ if File.exist?("all.txt") then
             object_file.write(line)
             skip_line = FALSE
         end
-    end 
+    end
 end

@@ -11,7 +11,36 @@ class DynamicsNAV
 
     # Combining MS Dynamics NAV files into one
     def combine path
-        p path
+        if !path.nil? then 
+            @filename = path 
+        end
+
+        if File.exist?(@filename) then
+            File.delete(@filename) 
+        end
+        i = 1
+        if Dir.glob('*.txt',File::FNM_CASEFOLD).count != 0 then
+            File.open(@filename,"w") { 
+                |f| 
+                ( # Merging arrays
+                Dir.glob('tab*.txt',File::FNM_CASEFOLD)| # Get all tables
+                Dir.glob('for*.txt',File::FNM_CASEFOLD)| # Get all forms
+                Dir.glob('pag*.txt',File::FNM_CASEFOLD)| # Get all pages
+                Dir.glob('rep*.txt',File::FNM_CASEFOLD)| # Get all reports
+                Dir.glob('dat*.txt',File::FNM_CASEFOLD)| # Get all dataports
+                Dir.glob('que*.txt',File::FNM_CASEFOLD)| # Get all queries
+                Dir.glob('xml*.txt',File::FNM_CASEFOLD)| # Get all xmlports
+                Dir.glob('cod*.txt',File::FNM_CASEFOLD)| # Get all codeunits
+                Dir.glob('men*.txt',File::FNM_CASEFOLD)).each{ 
+                    |o| 
+                    i = i + 1
+
+                    f.puts( File.read(o) ) 
+                } 
+            }
+        end
+
+        puts i.to_s + " NAV objects => " + @filename
     end
 
     # Split one MS Dynamics NAV file into many smaller

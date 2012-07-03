@@ -18,7 +18,8 @@ class DynamicsNAV
         if File.exist?(@filename) then
             File.delete(@filename) 
         end
-        i = 1
+
+        i = 0
         if Dir.glob('*.txt',File::FNM_CASEFOLD).count != 0 then
             File.open(@filename,"w") { 
                 |f| 
@@ -34,7 +35,6 @@ class DynamicsNAV
                 Dir.glob('men*.txt',File::FNM_CASEFOLD)).each{ 
                     |o| 
                     i = i + 1
-
                     f.puts( File.read(o) ) 
                 } 
             }
@@ -45,11 +45,33 @@ class DynamicsNAV
 
     # Split one MS Dynamics NAV file into many smaller
     def separate path
-        p path
+        if !path.nil? then 
+            @filename = path 
+        end
+
+        if File.exist?(@filename) then
+            f = File
+            b = String.new 
+            File.open(@filename).each_line do |l|
+                if l[0..6] == 'OBJECT ' then
+                    if !b.empty? then
+                        f.puts(b.rstrip)
+                        f.puts
+                        b = String.new
+                    end
+                    f = File.open(l.split[1][0..2].upcase + l.split[2] + '.TXT',"w")
+                end
+                
+                b << l
+            end
+
+            if !b.empty? then
+                f.puts(b.rstrip)
+            end
+        end
     end
 
 end
-
 
 #commands = {}
 #options = {}

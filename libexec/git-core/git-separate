@@ -10,35 +10,50 @@ if File.exist?("all.txt") then
         FALSE
     end
 
+    show_status = if ARGV.include?('--status') then
+        TRUE
+    else
+        FALSE
+    end
+
+    end_line = FALSE 
     File.open("all.txt").each_line do |line|
 
-        file_name = if line[0] != ' ' then
+        file_name = if line[0] != '  ' then
             case 
-                when line.match('^OBJECT Table.*')
+                when line.match('OBJECT Table.*')
                     "TAB" + line.split[2] + ".TXT"
-                when line.match('^OBJECT Form.*')
+                when line.match('OBJECT Form.*')
                     "FOR" + line.split[2] + ".TXT"
-                when line.match('^OBJECT Report.*')
+                when line.match('OBJECT Report.*')
                     "REP" + line.split[2] + ".TXT"
-                when line.match('^OBJECT Dataport.*')
+                when line.match('OBJECT Dataport.*')
                     "DAT" + line.split[2] + ".TXT"
-                when line.match('^OBJECT XMLPort.*')
+                when line.match('OBJECT XMLPort.*')
                     "XML" + line.split[2] + ".TXT"
-                when line.match('^OBJECT Codeunit.*')
+                when line.match('OBJECT Codeunit.*')
                     "COD" + line.split[2] + ".TXT"
-                when line.match("^OBJECT MenuSuite.*")
+                when line.match("OBJECT MenuSuite.*")
                     "MEN" + line.split[2] + ".TXT"
-                when line.match('^OBJECT Page.*')
+                when line.match('OBJECT Page.*')
                     "PAG" + line.split[2] + ".TXT"
-                when line.match('^OBJECT Query.*')
+                when line.match('OBJECT Query.*')
                     "QUE" + line.split[2] + ".TXT"
             end
         end
         
-        unless file_name.nil? 
+        unless file_name.nil?
+            line = line.lstrip
+
             # New NAV object was found in the combined file
             File.exist?(file_name) { File.delete(file_name) }
+            
+            if end_line then
+                object_file.write(' ')
+            end
+
             object_file = File.open(file_name,"w")
+            end_line = TRUE
             time_cleaned = FALSE
             flag_cleaned = FALSE
             skip_line = FALSE
@@ -71,5 +86,10 @@ if File.exist?("all.txt") then
             object_file.write(line)
             skip_line = FALSE
         end
+    end
+    
+    object_file.write(' ')
+    if show_status then 
+        puts `git status` 
     end
 end

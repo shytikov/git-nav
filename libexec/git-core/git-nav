@@ -1,0 +1,49 @@
+#!/usr/bin/ruby -w
+# vim:syntax=ruby
+
+#require 'optparse'
+
+class DynamicsNAV
+
+    def initialize       
+       @filename = "all.txt"
+    end
+
+    # Combining MS Dynamics NAV files into one
+    def combine path
+        p path
+    end
+
+    # Split one MS Dynamics NAV file into many smaller
+    def separate path
+        p path
+    end
+
+end
+
+
+#commands = {}
+#options = {}
+#OptionParser.new do |opts|
+#  opts.banner = "Usage: git-nav [command] [options]"
+#
+#  opts.on("-i", "--separate", "Separate single file into multiple NAV objects") do |command|
+#    commands[:separate] = command
+#  end
+#end.parse!
+
+#p commands
+#p options
+#p ARGV
+
+ARGV.each do |arg|
+    if arg == 'separate' then
+        nav = DynamicsNAV.new
+        nav.separate ARGV[ARGV.index(arg) + 1]
+    end 
+
+    if arg == 'combine' then
+        nav = DynamicsNAV.new
+        nav.combine ARGV[ARGV.index(arg) + 1]
+    end 
+end

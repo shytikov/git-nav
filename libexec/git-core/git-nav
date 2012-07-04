@@ -1,27 +1,30 @@
 #!/usr/bin/ruby -w
 # vim:syntax=ruby
 
-#require 'optparse'
+require 'optparse'
 
 class DynamicsNAV
-
-    def initialize       
-       @filename = "all.txt"
+    
+    # Class constructor
+    def initialize
+        @file_name = "all.txt"
+        @file_buffer = String
+        @file_object = File
     end
 
     # Combining MS Dynamics NAV files into one
-    def combine path
+    def join path
         if !path.nil? then 
-            @filename = path 
+            @file_name = path 
         end
 
-        if File.exist?(@filename) then
-            File.delete(@filename) 
+        if File.exist?(@file_name) then
+            File.delete(@file_name) 
         end
 
         i = 0
         if Dir.glob('*.txt',File::FNM_CASEFOLD).count != 0 then
-            File.open(@filename,"w") { 
+            File.open(@file_name,"w") { 
                 |f| 
                 ( # Merging arrays
                 Dir.glob('tab*.txt',File::FNM_CASEFOLD)| # Get all tables
@@ -40,61 +43,68 @@ class DynamicsNAV
             }
         end
 
-        puts i.to_s + " NAV objects => " + @filename
+        puts i.to_s + " NAV objects => " + @file_name
     end
 
     # Split one MS Dynamics NAV file into many smaller
-    def separate path
+    def split path
         if !path.nil? then 
-            @filename = path 
+            @file_name = path 
         end
 
-        if File.exist?(@filename) then
-            f = File
-            b = String.new 
-            File.open(@filename).each_line do |l|
+        if File.exist?(@file_name) then
+            @file_buffer = String.new 
+            File.open(@file_name).each_line do |l|
                 if l[0..6] == 'OBJECT ' then
-                    if !b.empty? then
-                        f.puts(b.rstrip)
-                        f.puts
-                        b = String.new
-                    end
-                    f = File.open(l.split[1][0..2].upcase + l.split[2] + '.TXT',"w")
+                    flush
+                    @file_object = File.open(l.split[1][0..2].upcase + l.split[2] + '.TXT',"w")
                 end
                 
-                b << l
+                @file_buffer << l
             end
-
-            if !b.empty? then
-                f.puts(b.rstrip)
-            end
+            
+            flush
         end
     end
 
+    # Private methods section
+    private
+    
+    # Flushes buffer into the object file
+    def flush
+        if !@file_buffer.empty? then
+            @file_object.puts(@file_buffer.rstrip)
+            # Every file will end with empty line
+            @file_object.puts
+            @file_buffer = String.new
+        end
+    end
 end
 
-#commands = {}
-#options = {}
-#OptionParser.new do |opts|
-#  opts.banner = "Usage: git-nav [command] [options]"
-#
-#  opts.on("-i", "--separate", "Separate single file into multiple NAV objects") do |command|
-#    commands[:separate] = command
-#  end
-#end.parse!
+options = {}
+OptionParser.new do |o|
+    o.banner = "Usage: git-nav [options] filename
+    Available options are:"
+    
+    o.on("-j", "--join", "Join all NAV objects into one big text file.") do |v|
+        options[:join] = v
+    end
 
-#p commands
-#p options
-#p ARGV
+    o.on("-s", "--split", "Split one big text file on many NAV objects.") do |v|
+        options[:split] = v
+    end
 
-ARGV.each do |arg|
-    if arg == 'separate' then
-        nav = DynamicsNAV.new
-        nav.separate ARGV[ARGV.index(arg) + 1]
-    end 
+#    o.on("-c", "--clean", "Clean up date and time of NAV objects.") do |v|
+#        options[:clean] = v
+#    end
+end.parse!
 
-    if arg == 'combine' then
-        nav = DynamicsNAV.new
-        nav.combine ARGV[ARGV.index(arg) + 1]
-    end 
-end
+if options[:join] then
+    nav = DynamicsNAV.new
+    nav.join ARGV[0]
+end 
+
+if options[:split] then
+    nav = DynamicsNAV.new
+    nav.split ARGV[0]
+end 

@@ -4,7 +4,6 @@
 require 'optparse'
 
 class DynamicsNAV
-    
     # Class constructor
     def initialize
         @file_name = "all.txt"
@@ -61,6 +60,9 @@ class DynamicsNAV
         end
     end
 
+    def diff
+    end
+
     # Private methods section
     private
     
@@ -86,6 +88,10 @@ OptionParser.new do |o|
 
     o.on("-s", "--split", "Split one big text file on many NAV objects.") do |v|
         options[:split] = v
+    end
+
+    o.on("-d", "--diff", "Explain difference between version in NAV objects.") do |v|
+        optionsp[:diff] = v
     end
 
 #    o.on("-c", "--clean", "Clean up date and time of NAV objects.") do |v|

@@ -22,7 +22,6 @@ class DynamicsNAV
             File.delete(@file_name) 
         end
 
-        i = 0
         if Dir.glob('*.txt',File::FNM_CASEFOLD).count != 0 then
             File.open(@file_name,"w") { 
                 |f| 
@@ -37,13 +36,10 @@ class DynamicsNAV
                 Dir.glob('cod*.txt',File::FNM_CASEFOLD)| # Get all codeunits
                 Dir.glob('men*.txt',File::FNM_CASEFOLD)).each{ 
                     |o| 
-                    i = i + 1
                     f.puts( File.read(o) ) 
                 } 
             }
         end
-
-        puts i.to_s + " NAV objects => " + @file_name
     end
 
     # Split one MS Dynamics NAV file into many smaller
@@ -54,15 +50,13 @@ class DynamicsNAV
 
         if File.exist?(@file_name) then
             @file_buffer = String.new 
-            File.open(@file_name).each_line do |l|
+            File.open(@file_name,"r").each_line do |l|
                 if l[0..6] == 'OBJECT ' then
                     flush
                     @file_object = File.open(l.split[1][0..2].upcase + l.split[2] + '.TXT',"w")
                 end
-                
                 @file_buffer << l
             end
-            
             flush
         end
     end

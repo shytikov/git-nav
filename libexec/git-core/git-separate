@@ -12,10 +12,12 @@ else
 fi
 
 awk '{
-    if (/^(OBJECT ).*/) {
-        file = toupper(substr($2,1,3))$3".TXT"
-        print > file 
+    sub(/$/,"\r"); 
+    if (/(OBJECT ).*/) {
+        sub(/^[ \t]+/, "");
+        file = toupper(substr($2,1,3))$3".TXT";
+        print > file;
     } else {
-        print >> file 
+        print >> file; 
     }
 }' "$ALL"

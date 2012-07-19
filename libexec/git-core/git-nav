@@ -60,7 +60,32 @@ class DynamicsNAV
         end
     end
 
-    def diff
+    # Find differenece between two versions of MS Dynamics NAV objects
+    def diff versions, path
+        if path.nil? then
+            path = `#{'git diff --name-only ' + versions}`.split('\n') 
+        else
+            path = path.split
+        end
+
+        path.each {
+            |p|
+            @file_buffer = `#{'git show ' + versions.split('..').first + ':' + p}`
+            #parse
+            #p @file_buffer
+            file_diff = `#{'git diff ' + versions + ' ' + p}`
+            file_diff.each_line {
+                |l|
+                case l
+                when /@@ -(\d+),(\d+) \+((\d+),(\d+)|(\d+)) @@ (.*)/ 
+                    p $1.to_i
+                end
+                #slices = String.new
+                #if l[0..1] == '@@' then
+                #    slices = l.split('@@ ')[1].rstrip.split[0].split(',')
+                #end
+            }
+        }
     end
 
     # Private methods section
@@ -74,6 +99,26 @@ class DynamicsNAV
             @file_object.puts
             @file_buffer = String.new
         end
+    end
+
+    def parse
+        category1 = 'Object definition was changed.'
+        category2 = String
+        temp_buffer = String.new
+        @file_buffer.each_line {
+            |l|
+            
+            if l.lstrip[0..16] == 'OBJECT-PROPERTIES' then
+                category1 = 'Object properties were changed.'
+            end
+
+            if l.lstrip[0..9] == 'PROPERTIES' then
+                category1 = 'Properties section was changed.'
+            end
+
+            temp_buffer += category1
+        }
+        @file_buffer = temp_buffer
     end
 end
 
@@ -91,7 +136,7 @@ OptionParser.new do |o|
     end
 
     o.on("-d", "--diff", "Explain difference between version in NAV objects.") do |v|
-        optionsp[:diff] = v
+        options[:diff] = v
     end
 
 #    o.on("-c", "--clean", "Clean up date and time of NAV objects.") do |v|
@@ -108,3 +153,8 @@ if options[:split] then
     nav = DynamicsNAV.new
     nav.split ARGV[0]
 end 
+
+if options[:diff] then
+    nav = DynamicsNAV.new
+    nav.diff ARGV[0], ARGV[1]
+end

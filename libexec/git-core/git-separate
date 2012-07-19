@@ -1,95 +1,21 @@
-#!/usr/bin/ruby -w
-# vim:syntax=ruby
+#!/bin/sh
+#
+# Splits text file with multiple Dynamics NAV object into many files, one per object.
+# If no input file name is given, default name (all.txt) will be used instead.
+#
 
-if File.exist?("all.txt") then  
-    object_file = File
+if [ -n "$1" ] 
+then
+    ALL="$1"
+else
+    ALL="all.txt"
+fi
 
-    clean_objects = if ARGV.include?('--clean') then
-        TRUE
-    else
-        FALSE
-    end
-
-    show_status = if ARGV.include?('--status') then
-        TRUE
-    else
-        FALSE
-    end
-
-    end_line = FALSE 
-    File.open("all.txt").each_line do |line|
-
-        file_name = if line[0] != '  ' then
-            case 
-                when line.match('OBJECT Table.*')
-                    "TAB" + line.split[2] + ".TXT"
-                when line.match('OBJECT Form.*')
-                    "FOR" + line.split[2] + ".TXT"
-                when line.match('OBJECT Report.*')
-                    "REP" + line.split[2] + ".TXT"
-                when line.match('OBJECT Dataport.*')
-                    "DAT" + line.split[2] + ".TXT"
-                when line.match('OBJECT XMLPort.*')
-                    "XML" + line.split[2] + ".TXT"
-                when line.match('OBJECT Codeunit.*')
-                    "COD" + line.split[2] + ".TXT"
-                when line.match("OBJECT MenuSuite.*")
-                    "MEN" + line.split[2] + ".TXT"
-                when line.match('OBJECT Page.*')
-                    "PAG" + line.split[2] + ".TXT"
-                when line.match('OBJECT Query.*')
-                    "QUE" + line.split[2] + ".TXT"
-            end
-        end
-        
-        unless file_name.nil?
-            line = line.lstrip
-
-            # New NAV object was found in the combined file
-            File.exist?(file_name) { File.delete(file_name) }
-            
-            if end_line then
-                object_file.write(' ')
-            end
-
-            object_file = File.open(file_name,"w")
-            end_line = TRUE
-            time_cleaned = FALSE
-            flag_cleaned = FALSE
-            skip_line = FALSE
-        end
-        
-        if clean_objects  then
-            if !time_cleaned then
-                if line.match('.*Time=.*;') then
-                    if line.include?('[') && line.include?(']') then
-                        line[-5..-4] = '00'
-                        line[-8..-7] = '00'
-                    else
-                        # Removing seconds
-                        line[-4..-3] = '00' 
-                        line[-7..-6] = '00'
-                    end
-                    time_cleaned = TRUE
-                end 
-            end
-
-            if !flag_cleaned then
-                if line.match('.*Modified=Yes;') then
-                    flag_cleaned = TRUE
-                    skip_line = TRUE
-                end
-            end
-        end
-
-        if !skip_line then
-            object_file.write(line)
-            skip_line = FALSE
-        end
-    end
-    
-    object_file.write(' ')
-    if show_status then 
-        puts `git status` 
-    end
-end
+awk '{
+    if (/^(OBJECT ).*/) {
+        file = toupper(substr($2,1,3))$3".TXT"
+        print > file 
+    } else {
+        print >> file 
+    }
+}' "$ALL"

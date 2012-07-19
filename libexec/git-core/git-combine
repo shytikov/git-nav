@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Combines many Dynamics NAV object files into single big one.
+# If no input file name is given, default name (all.txt) will be used instead.
+#
+
+if [ -n "$1" ] 
+then
+    ALL="$1"
+else
+    ALL="all.txt"
+fi
+
+rm -f "$ALL"
+cat `ls | grep -i "TXT"` > "$ALL"

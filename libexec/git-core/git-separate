@@ -11,9 +11,9 @@ else
     ALL="all.txt"
 fi
 
-chmod -R 0777 *.txt
-chmod -R 0777 *.TXT
-chmod -R 0777 *.Txt
+chmod -R -f 0777 *.txt
+chmod -R -f 0777 *.TXT
+chmod -R -f 0777 *.Txt
 
 awk '{
     sub(/$/,"\r"); 

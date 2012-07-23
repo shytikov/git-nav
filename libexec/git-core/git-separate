@@ -11,6 +11,10 @@ else
     ALL="all.txt"
 fi
 
+chmod -R 0777 *.txt
+chmod -R 0777 *.TXT
+chmod -R 0777 *.Txt
+
 awk '{
     sub(/$/,"\r"); 
     if (/(OBJECT ).*/) {

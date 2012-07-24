@@ -12,4 +12,4 @@ else
 fi
 
 rm -f "$ALL"
-cat `ls | grep -i "TXT"` > "$ALL"
+cat `ls | grep -i "TXT$"` > "$ALL"
